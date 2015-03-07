@@ -1,0 +1,8 @@
+configure
+Makefile
+myocamlbuild.ml
+setup.*
+_build/
+_tags
+*.byte
+*.native

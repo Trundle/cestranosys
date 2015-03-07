@@ -1,0 +1,15 @@
+OASISFormat:  0.4
+Name:         cestranosys
+Version:      0.1.0
+Synopsis:     The Cetacean stranding notification system.
+Authors:      Andreas Stührk
+License:      MIT
+LicenseFile:  LICENSE
+Plugins:      DevFiles (0.4)
+BuildTools:   ocamlbuild
+BuildDepends: cmdliner, cohttp.lwt, ppx_deriving_yojson, uri, yojson
+
+Executable cestranosys
+  Path:           src
+  MainIs:         cestranosys.ml
+  CompiledObject: best
