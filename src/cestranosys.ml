@@ -39,8 +39,7 @@ let run () =
   print_endline "Beginning to look out for cetaceans...";
 
   Lwt_main.run (
-      Client.get (events_uri "localhost")
-      >>= fun (resp, body) ->
+      let%lwt (resp, body) = Client.get (events_uri "localhost") in
       let status = Response.status resp in
       let code = (Code.code_of_status status) in
       if (code != 200) then

@@ -7,7 +7,7 @@ License:      MIT
 LicenseFile:  LICENSE
 Plugins:      DevFiles (0.4)
 BuildTools:   ocamlbuild
-BuildDepends: cmdliner, cohttp.lwt, ppx_deriving_yojson, uri, yojson
+BuildDepends: cmdliner, cohttp.lwt, lwt.ppx, ppx_deriving_yojson, uri, yojson
 
 Executable cestranosys
   Path:           src
