@@ -60,6 +60,17 @@ let handle_event notify data =
      (* XXX log warning or something *)
      Lwt.return ()
 
+let handle_events notify docker_uri =
+  let events_uri = Uri.with_path docker_uri "/events" in
+  let%lwt (resp, body) = Client.get events_uri in
+  let code = resp |> Response.status |> Code.code_of_status in
+  if (code != 200) then
+    failwith(Format.sprintf "Unexpected HTTP status: %d" code);
+  let stream = (Cohttp_lwt_body.to_stream body) in
+  (* XXX We assume that every iteration is a complete event *)
+  Lwt_stream.iter_s (handle_event (notify docker_uri)) stream
+
+
 let run docker_uris room =
   let room_token =
     try Sys.getenv "HIPCHAT_ROOM_TOKEN" with
@@ -67,19 +78,8 @@ let run docker_uris room =
       print_endline "HIPCHAT_ROOM_TOKEN env var not set!";
       exit 1
   in
-  let notify = notify_room room_token room (List.hd docker_uris)
-    and events_uri = Uri.with_path (List.hd docker_uris) "/events"
-  in
-  Lwt_main.run (
-      let%lwt (resp, body) = Client.get events_uri in
-      let status = Response.status resp in
-      let code = (Code.code_of_status status) in
-      if (code != 200) then
-	failwith(Format.sprintf "Unexpected HTTP status: %d" code);
-      let stream = (Cohttp_lwt_body.to_stream body) in
-      (* XXX We assume that every iteration is a complete event *)
-      Lwt_stream.iter_s (handle_event notify) stream
-  )
+  let notify = notify_room room_token room in
+  Lwt_main.run (Lwt_list.iter_p (handle_events notify) docker_uris)
 
 
 (* CLI follows *)
