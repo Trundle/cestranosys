@@ -12,6 +12,7 @@ BuildDepends: cmdliner,
               lwt.ppx,
               ppx_deriving.show,
               ppx_deriving_yojson,
+              ssl,
               uri,
               yojson
 
