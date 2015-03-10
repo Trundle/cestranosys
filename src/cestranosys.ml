@@ -37,6 +37,11 @@ let pp_uri_and_event uri event =
     | None -> "(unknown)"
   in Printf.sprintf "%s: %s" host (pp_event event)
 
+let strip_tag image =
+  try let index = String.rindex image ':' in
+      String.sub image 0 index
+  with Not_found -> image
+
 let notify_room token room uri event =
   let json = notification_to_yojson { message = pp_uri_and_event uri event;
 				      message_format = "text"; } in
@@ -69,14 +74,20 @@ let handle_events notify docker_uri =
   Lwt_stream.iter_s (handle_event (notify docker_uri)) stream
 
 
-let run docker_uris room =
+let run images_to_filter docker_uris room =
   let room_token =
     try Sys.getenv "HIPCHAT_ROOM_TOKEN" with
     Not_found ->
       print_endline "HIPCHAT_ROOM_TOKEN env var not set!";
       exit 1
   in
-  let notify = notify_room room_token room in
+  let notify =
+    (fun uri event ->
+     let image = strip_tag event.from in
+     if not (List.mem image images_to_filter) then
+       notify_room room_token room uri event
+     else Lwt.return ())
+  in
   Lwt_main.run (Lwt_list.iter_p (handle_events notify) docker_uris)
 
 
@@ -95,6 +106,10 @@ let uri =
   ),
   fun ppf u -> Format.fprintf ppf "%s" (Uri.to_string u)
 
+let filter =
+  Cmdliner.Arg.(value & opt_all string [] &
+		  info ["f"; "filter"] ~docv:"IMAGE")
+
 let room =
   Cmdliner.Arg.(required & pos 0 (some string) None & info [] ~docv:"ROOM")
 
@@ -102,7 +117,7 @@ let docker_uris =
   Cmdliner.Arg.(non_empty & (pos_right 0 uri) [] & info [] ~docv:"DOCKER_URI")
 
 let run_t =
-  Cmdliner.Term.(pure run $ docker_uris $ room)
+  Cmdliner.Term.(pure run $ filter $ docker_uris $ room)
 
 let () =
   match Cmdliner.Term.eval (run_t, info) with
