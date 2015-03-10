@@ -60,8 +60,7 @@ let handle_event notify data =
   match (event_obj_of_yojson json) with
   | `Ok event -> notify event
   | `Error error ->
-     (* XXX log warning or something *)
-     Lwt.return ()
+     Lwt_io.printlf "[ERR] Could not decode JSON: %s" error
 
 let handle_events notify docker_uri =
   let events_uri = Uri.with_path docker_uri "/events" in
