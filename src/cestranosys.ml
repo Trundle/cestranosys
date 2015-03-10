@@ -23,8 +23,6 @@ type notification = {
 } [@@deriving to_yojson]
 
 
-let docker_port = 2375
-
 let notify_url room =
   Uri.make ~scheme:"https" ~host:"hipchat.com"
 	   ~path:("/v2/room/" ^ room ^ "/notification") ()
