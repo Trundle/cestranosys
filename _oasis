@@ -3,7 +3,7 @@ Name:         cestranosys
 Version:      0.1.0
 Synopsis:     The Cetacean stranding notification system.
 Authors:      Andreas Stührk
-License:      MIT
+License:      Expat
 LicenseFile:  LICENSE
 Plugins:      DevFiles (0.4)
 BuildTools:   ocamlbuild
