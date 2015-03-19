@@ -2,7 +2,7 @@
  * The Cetacean stranding notification system.
  *)
 
-open Lwt
+open Lwt.Infix
 open Cohttp
 open Cohttp_lwt_unix
 
@@ -32,15 +32,15 @@ let pp_event event =
 		 (String.sub event.id 0 12) event.from event.status
 
 let pp_uri_and_event uri event =
-  let host = match (Uri.host uri) with
+  let host = match Uri.host uri with
     | Some host -> host
     | None -> "(unknown)"
   in Printf.sprintf "%s: %s" host (pp_event event)
 
 let strip_tag image =
-  try let index = String.rindex image ':' in
-      String.sub image 0 index
-  with Not_found -> image
+  match String.rindex image ':' with
+  | index -> String.sub image 0 index
+  | exception Not_found -> image
 
 let notify_room token room uri event =
   let json = notification_to_yojson { message = pp_uri_and_event uri event;
@@ -57,7 +57,7 @@ let notify_room token room uri event =
 
 let handle_event notify data =
   let json = Yojson.Safe.from_string data in
-  match (event_obj_of_yojson json) with
+  match event_obj_of_yojson json with
   | `Ok event -> notify event
   | `Error error ->
      Lwt_io.printlf "[ERR] Could not decode JSON: %s ('%s')" error data
@@ -66,9 +66,9 @@ let handle_events notify docker_uri =
   let events_uri = Uri.with_path docker_uri "/events" in
   let%lwt (resp, body) = Client.get events_uri in
   let code = resp |> Response.status |> Code.code_of_status in
-  if (code != 200) then
+  if code <> 200 then
     failwith(Format.sprintf "Unexpected HTTP status: %d" code);
-  let stream = (Cohttp_lwt_body.to_stream body) in
+  let stream = Cohttp_lwt_body.to_stream body in
   (* XXX We assume that every iteration is a complete event *)
   Lwt_stream.iter_s (handle_event (notify docker_uri)) stream
 
