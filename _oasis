@@ -5,7 +5,7 @@ Synopsis:     The Cetacean stranding notification system.
 Authors:      Andreas Stührk
 License:      Expat
 LicenseFile:  LICENSE
-Plugins:      DevFiles (0.4)
+Plugins:      DevFiles (0.4), META (0.4)
 BuildTools:   ocamlbuild
 BuildDepends: cohttp.lwt,
               lwt.ppx,
@@ -29,10 +29,12 @@ Executable cestranosys
 Executable test
   Path:           src
   MainIs:         test.ml
+  Build$: flag(tests)
   CompiledObject: best
   Install:        false
   BuildDepends:   oUnit
 
 Test main
+  Run$:      flag(tests)
   Command:   $test -runner sequential
   TestTools: test

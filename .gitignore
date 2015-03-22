@@ -4,6 +4,7 @@ myocamlbuild.ml
 setup.*
 _build/
 _tags
+META
 *.byte
 *.native
 *.mldylib
