@@ -7,8 +7,7 @@ License:      Expat
 LicenseFile:  LICENSE
 Plugins:      DevFiles (0.4)
 BuildTools:   ocamlbuild
-BuildDepends: cmdliner,
-              cohttp.lwt,
+BuildDepends: cohttp.lwt,
               lwt.ppx,
               ppx_deriving.show,
               ppx_deriving_yojson,
@@ -16,7 +15,24 @@ BuildDepends: cmdliner,
               uri,
               yojson
 
+Library cestranosys
+  Path:           src
+  Modules:        Cestranosys
+  CompiledObject: best
+
 Executable cestranosys
   Path:           src
-  MainIs:         cestranosys.ml
+  MainIs:         main.ml
   CompiledObject: best
+  BuildDepends:   cmdliner
+
+Executable test
+  Path:           src
+  MainIs:         test.ml
+  CompiledObject: best
+  Install:        false
+  BuildDepends:   oUnit
+
+Test main
+  Command:   $test -runner sequential
+  TestTools: test

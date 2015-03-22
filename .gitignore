@@ -6,3 +6,5 @@ _build/
 _tags
 *.byte
 *.native
+*.mldylib
+*.mllib

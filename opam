@@ -9,6 +9,9 @@ build: [
   ["./configure" "--prefix=%{prefix}%"]
   [make]
 ]
+build-test: [
+  [make "test"]
+]
 install: [make "install"]
 remove: ["ocamlfind" "remove" "cestranosys"]
 depends: [
@@ -16,6 +19,7 @@ depends: [
   "cmdliner"
   "cohttp"
   "lwt"
+  "ounit" {test}
   "ppx_deriving_yojson"
   "ssl"
   "uri"
