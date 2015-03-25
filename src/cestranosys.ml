@@ -71,20 +71,3 @@ let handle_events notify docker_uri =
   let stream = Cohttp_lwt_body.to_stream body in
   (* XXX We assume that every iteration is a complete event *)
   Lwt_stream.iter_s (handle_event (notify docker_uri)) stream
-
-
-let run images_to_filter docker_uris room =
-  let room_token =
-    try Sys.getenv "HIPCHAT_ROOM_TOKEN" with
-    Not_found ->
-      print_endline "HIPCHAT_ROOM_TOKEN env var not set!";
-      exit 1
-  in
-  let notify =
-    (fun uri event ->
-     let image = strip_tag event.from in
-     if not (List.mem image images_to_filter) then
-       notify_room room_token room uri event
-     else Lwt.return ())
-  in
-  Lwt_main.run (Lwt_list.iter_p (handle_events notify) docker_uris)
